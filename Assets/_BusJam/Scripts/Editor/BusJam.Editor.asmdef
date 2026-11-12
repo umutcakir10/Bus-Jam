@@ -1,0 +1,18 @@
+{
+    "name": "BusJam.Editor",
+    "rootNamespace": "BusJam.EditorTools",
+    "references": [
+        "GUID:c793bd5f29e32a74a89d9d26bba82f30"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
