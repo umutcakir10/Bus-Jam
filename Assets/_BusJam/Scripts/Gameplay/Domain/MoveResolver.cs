@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BusJam.Core;
 using BusJam.LevelSystem;
 
@@ -6,24 +6,28 @@ namespace BusJam.Gameplay.Domain
 {
     public enum GameState { Playing, Won, Lost }
 
+    public enum LoseReason { None, NoSpaceLeft, TimeUp }
+
     public enum TapResult
     {
-        Ignored, 
-        Blocked, 
-        Moved,   
+        Ignored,
+        Blocked,
+        Moved,
     }
 
-   
+ 
+    // Board'un, otobüslerin ve slotların sahibi bir dokunuşu zincirleme tepkileriyle birlikte anında çözer
+    // Görüntü sadece ürettiği olayları oynatır
     public sealed class MoveResolver
     {
         public BoardModel Board { get; }
         public BusQueue Buses { get; }
         public WaitingArea Waiting { get; }
         public GameState State { get; private set; }
+        public LoseReason LoseReason { get; private set; }
 
         private readonly BoardPathfinder _pathfinder;
 
-        
         public MoveResolver(LevelData level)
         {
             Board = new BoardModel(level);
@@ -33,7 +37,7 @@ namespace BusJam.Gameplay.Domain
             State = GameState.Playing;
         }
 
-       
+        // Listeleri çağıran veriyor ve her dokunuşta tekrar kullanıyor böylece hiç çöp üretmiyoruz
         public TapResult Tap(GridPos cell, List<GridPos> path, List<MoveEvent> events)
         {
             path.Clear();
@@ -58,7 +62,7 @@ namespace BusJam.Gameplay.Domain
             }
             else
             {
-                
+                // Burada mutlaka boş slot var çünkü slotlar dolduğu an oyun bitiyor
                 int slot = Waiting.Add(color);
                 events.Add(MoveEvent.ToSlot(cell, slot));
             }
@@ -67,14 +71,25 @@ namespace BusJam.Gameplay.Domain
             return TapResult.Moved;
         }
 
+        // Süre dolunca dışarıdan çağrılıyor, oyun zaten bittiyse hiçbir şey yapmıyor
+        public void TimeUp()
+        {
+            if (State != GameState.Playing)
+                return;
+
+            State = GameState.Lost;
+            LoseReason = LoseReason.TimeUp;
+        }
+
         private void DepartFullBuses(List<MoveEvent> events)
         {
+            // Otobüs gidiyor yenisi slottan yolcu alıyor, o da dolarsa o da gidiyor
+            // Zincir kaç halka olursa olsun tek dokunuşta çözülüyor
             while (Buses.IsCurrentFull)
             {
                 events.Add(MoveEvent.BusDeparted(Buses.CurrentIndex));
                 Buses.Depart();
 
-              
                 while (!Buses.AllDeparted && !Buses.IsCurrentFull
                        && Waiting.TryFindColor(Buses.CurrentColor, out int slot))
                 {
@@ -89,9 +104,14 @@ namespace BusJam.Gameplay.Domain
         private void UpdateState()
         {
             if (Buses.AllDeparted)
+            {
                 State = GameState.Won;
+            }
             else if (Waiting.IsFull)
+            {
                 State = GameState.Lost;
+                LoseReason = LoseReason.NoSpaceLeft;
+            }
         }
     }
 }
