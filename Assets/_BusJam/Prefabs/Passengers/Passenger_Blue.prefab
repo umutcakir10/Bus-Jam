@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8071975481978076169}
+  - component: {fileID: 7972355039596277984}
   m_Layer: 0
   m_Name: Passenger_Blue
   m_TagString: Untagged
@@ -32,6 +33,20 @@ Transform:
   - {fileID: 8577678252974286573}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7972355039596277984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7885490126138574716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 425b6771306d0d946962cd17d8b5fa89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: 2
+  animator: {fileID: 5371011346597956603}
 --- !u!1001 &6168534075995818451
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -111,6 +126,12 @@ PrefabInstance:
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 5070166782522381797, guid: df9b0c545995c1c4091bbaea0f7a756d,
     type: 3}
+--- !u!95 &5371011346597956603 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2239031544688656936, guid: df9b0c545995c1c4091bbaea0f7a756d,
+    type: 3}
+  m_PrefabInstance: {fileID: 6168534075995818451}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8577678252974286573 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -6732597889668763842, guid: df9b0c545995c1c4091bbaea0f7a756d,

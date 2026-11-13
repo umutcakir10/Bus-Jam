@@ -13,6 +13,7 @@ namespace BusJam.Flow
         [SerializeField] private BoardLayoutSettings layoutSettings = new BoardLayoutSettings();
         [SerializeField] private BoardView boardView;
         [SerializeField] private CameraFitter cameraFitter;
+        [SerializeField] private PassengerBoardView passengerView;
 
         private void Awake()
         {
@@ -31,6 +32,7 @@ namespace BusJam.Flow
             var board = new BoardModel(level);
             var layout = new BoardLayout(board.Width, board.Height, level.waitingSlotCount, layoutSettings);
             boardView.Build(board, layout);
+            passengerView.Build(board, layout);
             cameraFitter.Fit(layout.GetPlayAreaBounds());
         }
     }

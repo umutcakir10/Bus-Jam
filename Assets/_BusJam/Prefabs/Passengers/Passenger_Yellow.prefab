@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1015887726080564144}
+  - component: {fileID: 1218459874263340331}
   m_Layer: 0
   m_Name: Passenger_Yellow
   m_TagString: Untagged
@@ -32,6 +33,20 @@ Transform:
   - {fileID: 1582795766938470862}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1218459874263340331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3242623671242598793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 425b6771306d0d946962cd17d8b5fa89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  color: 4
+  animator: {fileID: 2915125203206694104}
 --- !u!1001 &3991941611455227632
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -114,6 +129,12 @@ PrefabInstance:
 --- !u!4 &1582795766938470862 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -6732597889668763842, guid: 7bfe96b0f8158ff40b9f65a91517f759,
+    type: 3}
+  m_PrefabInstance: {fileID: 3991941611455227632}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &2915125203206694104 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2239031544688656936, guid: 7bfe96b0f8158ff40b9f65a91517f759,
     type: 3}
   m_PrefabInstance: {fileID: 3991941611455227632}
   m_PrefabAsset: {fileID: 0}
