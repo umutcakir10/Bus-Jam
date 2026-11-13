@@ -273,7 +273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91b4d672d2b97144ebc778ee41c94b9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pitch: 60
+  pitch: 45
   padding: 0.08
   contentHeight: 1.5
 --- !u!1 &410087039

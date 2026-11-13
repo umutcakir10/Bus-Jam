@@ -23,6 +23,13 @@ namespace BusJam.Gameplay.Presentation
         private void Awake()
         {
             _camera = GetComponent<Camera>();
+
+        }
+        // Editor only: re-fit immediately when a value is changed in the Inspector during Play.
+        private void OnValidate()
+        {
+            if (_hasArea && _camera != null)
+                Apply();
         }
 
         public void Fit(Bounds playArea)
