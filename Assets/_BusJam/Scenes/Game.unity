@@ -306,7 +306,7 @@ Light:
   m_Type: 1
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -628,7 +628,7 @@ MonoBehaviour:
   layoutSettings:
     cellSize: 1
     slotSpacing: 1
-    slotGap: 1.5
+    slotGap: 2.2
     roadGap: 2
     roadWidth: 2.5
     groundMargin: 30
