@@ -14,6 +14,9 @@ namespace BusJam.Flow
         // Start ekranı sadece oyun ilk açıldığında çıkıyor 
         public static bool StartScreenShown { get; set; }
 
+        // Level Editorden test için gelindiyse oyunda editöre dönüş butonu görünecek burada
+        public static bool ReturnToEditor { get; set; }
+
         public static void EnsureLoaded()
         {
             if (_loaded)
