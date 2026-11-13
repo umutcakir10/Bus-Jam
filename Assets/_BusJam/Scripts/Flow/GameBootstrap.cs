@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BusJam.Core;
 using BusJam.Gameplay.Domain;
 using BusJam.Gameplay.Presentation;
 using BusJam.LevelSystem;
@@ -6,7 +7,7 @@ using UnityEngine;
 
 namespace BusJam.Flow
 {
-   
+    
     public sealed class GameBootstrap : MonoBehaviour
     {
         [SerializeField] private string levelId = "level_001";
@@ -15,6 +16,14 @@ namespace BusJam.Flow
         [SerializeField] private CameraFitter cameraFitter;
         [SerializeField] private PassengerBoardView passengerView;
         [SerializeField] private BusLineView busLineView;
+        [SerializeField] private TapInput tapInput;
+
+        private MoveResolver _resolver;
+        private BoardLayout _layout;
+
+        
+        private readonly List<GridPos> _path = new List<GridPos>(32);
+        private readonly List<MoveEvent> _events = new List<MoveEvent>(16);
 
         private void Awake()
         {
@@ -30,13 +39,24 @@ namespace BusJam.Flow
                 return;
             }
 
-            var board = new BoardModel(level);
-            var layout = new BoardLayout(board.Width, board.Height, level.waitingSlotCount, layoutSettings);
-            boardView.Build(board, layout);
-            passengerView.Build(board, layout);
-            var buses = new BusQueue(level);
-            busLineView.Build(buses, layout);
-            cameraFitter.Fit(layout.GetPlayAreaBounds());
+            _resolver = new MoveResolver(level);
+            _layout = new BoardLayout(_resolver.Board.Width, _resolver.Board.Height, level.waitingSlotCount, layoutSettings);
+
+            boardView.Build(_resolver.Board, _layout);
+            passengerView.Build(_resolver.Board, _layout);
+            busLineView.Build(_resolver.Buses, _layout);
+            cameraFitter.Fit(_layout.GetPlayAreaBounds());
+        }
+
+        private void Update()
+        {
+            if (_resolver == null || !tapInput.TryGetTappedCell(_layout, out GridPos cell))
+                return;
+
+            TapResult result = _resolver.Tap(cell, _path, _events);
+
+            
+            Debug.Log($"Tap {cell}: {result}, {_events.Count} event(s), state: {_resolver.State}");
         }
     }
 }
