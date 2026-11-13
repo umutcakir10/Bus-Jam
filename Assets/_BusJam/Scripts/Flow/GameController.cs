@@ -73,7 +73,7 @@ namespace BusJam.Flow
 
             string levelId = LevelCatalog.Ids[GameSession.LevelIndex];
             var errors = new List<string>();
-            if (!LevelRepository.TryLoadBuiltIn(levelId, out LevelData level, errors))
+            if (!LevelRepository.TryLoad(levelId, out LevelData level, errors))
             {
                 Debug.LogError($"Could not load '{levelId}':\n - {string.Join("\n - ", errors)}", this);
                 return;
