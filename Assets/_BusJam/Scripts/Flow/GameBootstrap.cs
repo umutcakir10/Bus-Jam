@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BusJam.Core;
 using BusJam.Gameplay.Domain;
 using BusJam.Gameplay.Presentation;
@@ -17,6 +17,7 @@ namespace BusJam.Flow
         [SerializeField] private PassengerBoardView passengerView;
         [SerializeField] private BusLineView busLineView;
         [SerializeField] private TapInput tapInput;
+        private MoveDirector _director;
 
         private MoveResolver _resolver;
         private BoardLayout _layout;
@@ -46,6 +47,7 @@ namespace BusJam.Flow
             passengerView.Build(_resolver.Board, _layout);
             busLineView.Build(_resolver.Buses, _layout);
             cameraFitter.Fit(_layout.GetPlayAreaBounds());
+            _director = new MoveDirector(_resolver.Board, _layout, passengerView, busLineView);
         }
 
         private void Update()
@@ -55,8 +57,12 @@ namespace BusJam.Flow
 
             TapResult result = _resolver.Tap(cell, _path, _events);
 
-            
-            Debug.Log($"Tap {cell}: {result}, {_events.Count} event(s), state: {_resolver.State}");
+            if (result == TapResult.Moved)
+                _director.Play(_path, _events);
+            else if (result == TapResult.Blocked)
+                _director.PlayBlocked(cell);
+            if (result == TapResult.Moved && _resolver.State != GameState.Playing)
+                Debug.Log($"Game over: {_resolver.State}");
         }
     }
 }

@@ -1,4 +1,4 @@
-using BusJam.Core;
+﻿using BusJam.Core;
 using BusJam.Gameplay.Domain;
 using UnityEngine;
 
@@ -32,6 +32,14 @@ namespace BusJam.Gameplay.Presentation
         }
 
         public PassengerView GetAt(int cellIndex) => _viewByCell[cellIndex];
+
+        // Yolcu grid'den ayrılınca kaydını siliyoruz, artık o hücrede değil
+        public PassengerView Take(int cellIndex)
+        {
+            PassengerView view = _viewByCell[cellIndex];
+            _viewByCell[cellIndex] = null;
+            return view;
+        }
 
         public void Clear()
         {
