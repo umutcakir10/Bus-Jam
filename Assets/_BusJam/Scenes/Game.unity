@@ -489,6 +489,57 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &946990164
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 946990166}
+  - component: {fileID: 946990165}
+  m_Layer: 0
+  m_Name: Buses
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &946990165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946990164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a88df94f2ebda94291cb5a909307774, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabs:
+  - {fileID: 3980117020761663697, guid: 23a63041f632ad941b3ed3e40dd61b30, type: 3}
+  - {fileID: 6293224136656405739, guid: 60599d0a6f53a7f4eadae2280ec58eaf, type: 3}
+  - {fileID: 2459596322041759825, guid: 43a9b3ac0f504134386791b36ad25592, type: 3}
+  - {fileID: 1796449035617571580, guid: d309d61ddcabbe2458694569d0de9d58, type: 3}
+  - {fileID: 2103360487754440928, guid: d84177b402a69fc48b2f37dc2ddf7aa9, type: 3}
+  queueSpacing: 5.2
+--- !u!4 &946990166
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 946990164}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1133060192
 GameObject:
   m_ObjectHideFlags: 0
@@ -635,6 +686,7 @@ MonoBehaviour:
   boardView: {fileID: 1209442038}
   cameraFitter: {fileID: 330585548}
   passengerView: {fileID: 553006335}
+  busLineView: {fileID: 946990165}
 --- !u!4 &1675966734
 Transform:
   m_ObjectHideFlags: 0
@@ -661,3 +713,4 @@ SceneRoots:
   - {fileID: 1675966734}
   - {fileID: 1133060194}
   - {fileID: 553006336}
+  - {fileID: 946990166}
