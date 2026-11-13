@@ -690,7 +690,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a1eca270c58ef74e8160db563dee40e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelId: level_001
+  levelId: level_002
   layoutSettings:
     cellSize: 1
     slotSpacing: 1
