@@ -1002,6 +1002,7 @@ GameObject:
   - component: {fileID: 814728299}
   - component: {fileID: 814728301}
   - component: {fileID: 814728300}
+  - component: {fileID: 814728302}
   m_Layer: 5
   m_Name: EndPanel
   m_TagString: Untagged
@@ -1067,6 +1068,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 814728298}
   m_CullTransparentMesh: 1
+--- !u!114 &814728302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 814728298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00348666d61c83045a6e8e457230e9e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  titleText: {fileID: 476618864}
+  messageText: {fileID: 819553347}
+  nextButton: {fileID: 1625720655}
+  nextLabel: {fileID: 460095350}
+  retryButton: {fileID: 1017255933}
 --- !u!1 &819553345
 GameObject:
   m_ObjectHideFlags: 0
@@ -1485,6 +1503,7 @@ GameObject:
   - component: {fileID: 1143466705}
   - component: {fileID: 1143466704}
   - component: {fileID: 1143466703}
+  - component: {fileID: 1143466707}
   m_Layer: 5
   m_Name: UI
   m_TagString: Untagged
@@ -1576,6 +1595,23 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1143466707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1143466702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfe172b4d5d0add42945c82bba2ce494, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelText: {fileID: 306046859}
+  timerText: {fileID: 1259291992}
+  warningSeconds: 10
+  normalColor: {r: 0.13333334, g: 0.14901961, b: 0.16862746, a: 1}
+  warningColor: {r: 0.90588236, g: 0.105882354, b: 0.19215687, a: 1}
 --- !u!1 &1209442037
 GameObject:
   m_ObjectHideFlags: 0
@@ -1708,6 +1744,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1236992814}
+  - component: {fileID: 1236992815}
   m_Layer: 5
   m_Name: SafeArea
   m_TagString: Untagged
@@ -1736,6 +1773,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1236992815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1236992813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eddf13e6c11ec8d4fafe4ec32396fe9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1259291990
 GameObject:
   m_ObjectHideFlags: 0
@@ -2002,7 +2051,7 @@ GameObject:
   - component: {fileID: 1675966734}
   - component: {fileID: 1675966733}
   m_Layer: 0
-  m_Name: GameBootstrap
+  m_Name: GameController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2020,7 +2069,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a1eca270c58ef74e8160db563dee40e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelId: level_002
   layoutSettings:
     cellSize: 1
     slotSpacing: 1
@@ -2033,6 +2081,9 @@ MonoBehaviour:
   passengerView: {fileID: 553006335}
   busLineView: {fileID: 946990165}
   tapInput: {fileID: 330585549}
+  hud: {fileID: 1143466707}
+  endPanel: {fileID: 814728302}
+  endPanelDelay: 1.5
 --- !u!4 &1675966734
 Transform:
   m_ObjectHideFlags: 0
