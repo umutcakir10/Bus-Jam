@@ -49,7 +49,14 @@ namespace BusJam.Save
             }
         }
 
-        
+        // Test ederken kaydı sıfırlamak için editör menüsünden çağrılıyor burada
+        public static void Delete()
+        {
+            if (File.Exists(FilePath))
+                File.Delete(FilePath);
+        }
+
+        public static string FolderPath => Application.persistentDataPath;
         public static SaveData Parse(string json)
         {
             if (string.IsNullOrWhiteSpace(json))

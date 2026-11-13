@@ -9,12 +9,14 @@ using UnityEngine.SceneManagement;
 
 namespace BusJam.Flow
 {
-    // Game sahnesinin yöneticisi
     
     public sealed class GameController : MonoBehaviour
     {
-        
-        private enum FlowState { Playing, Ending, Ended }
+        // Readyde Start paneli açık ve  oyuncunun dokunmasını bekliyoruz
+        // Playing: oyuncu dokunabiliyor ve süre akıyor
+        // Ending: oyun bitti ama son animasyonlar oynasın diye kısa bir süre bekliyoruz
+        // Ended: bitiş paneli açık, butonlara basılmasını bekliyoruz
+        private enum FlowState { Ready, Playing, Ending, Ended }
 
         [SerializeField] private BoardLayoutSettings layoutSettings = new BoardLayoutSettings();
         [SerializeField] private BoardView boardView;
@@ -23,6 +25,7 @@ namespace BusJam.Flow
         [SerializeField] private BusLineView busLineView;
         [SerializeField] private TapInput tapInput;
         [SerializeField] private GameHud hud;
+        [SerializeField] private StartPanel startPanel;
         [SerializeField] private EndPanel endPanel;
         [SerializeField] private float endPanelDelay = 1.5f;
 
@@ -40,13 +43,16 @@ namespace BusJam.Flow
         private void Awake()
         {
             Application.targetFrameRate = 60;
+            startPanel.Hide();
             endPanel.Hide();
+            startPanel.PlayClicked += OnPlayClicked;
             endPanel.NextClicked += OnNextClicked;
             endPanel.RetryClicked += OnRetryClicked;
         }
 
         private void OnDestroy()
         {
+            startPanel.PlayClicked -= OnPlayClicked;
             endPanel.NextClicked -= OnNextClicked;
             endPanel.RetryClicked -= OnRetryClicked;
         }
@@ -59,7 +65,9 @@ namespace BusJam.Flow
                 return;
             }
 
-            // Kayıtlı sıra numarası level sayısını aşıyorsa mesela bir level silindiyse başa dönüyoruz
+            GameSession.EnsureLoaded();
+
+            // Kayıtlı sıra numarası level sayısını aşıyorsa başa dönüyoruz
             if (GameSession.LevelIndex < 0 || GameSession.LevelIndex >= LevelCatalog.Count)
                 GameSession.LevelIndex = 0;
 
@@ -83,8 +91,19 @@ namespace BusJam.Flow
             _timer = new LevelTimer(level.timeLimitSeconds);
             hud.SetLevel(level.displayName);
             hud.SetTime(_timer.Remaining);
-            _timer.Start();
-            _flow = FlowState.Playing;
+
+            // Oyuncu eğer ki bu levelı yarıda bırakıp çıkarsa bir dahaki sefere buradan devam etsin
+            GameSession.SaveProgress(GameSession.LevelIndex);
+
+            if (GameSession.StartScreenShown)
+            {
+                BeginPlay();
+            }
+            else
+            {
+                _flow = FlowState.Ready;
+                startPanel.Show(level.displayName);
+            }
         }
 
         private void Update()
@@ -101,6 +120,14 @@ namespace BusJam.Flow
                     UpdateEnding();
                     break;
             }
+        }
+
+        private void BeginPlay()
+        {
+            startPanel.Hide();
+            GameSession.StartScreenShown = true;
+            _timer.Start();
+            _flow = FlowState.Playing;
         }
 
         private void UpdatePlaying()
@@ -124,7 +151,12 @@ namespace BusJam.Flow
             _timer.Stop();
             _flow = FlowState.Ending;
 
-            
+            // Kazanınca hemen sonraki levelı kaydediyoruz
+            // Oyuncu paneldeyken oyunu kapatsa bile bir dahaki sefere yeni leveldan başlasın
+            if (_resolver.State == GameState.Won)
+                GameSession.SaveProgress((GameSession.LevelIndex + 1) % LevelCatalog.Count);
+
+           
             _endPanelCountdown = _resolver.LoseReason == LoseReason.TimeUp ? 0.3f : endPanelDelay;
         }
 
@@ -141,6 +173,12 @@ namespace BusJam.Flow
                 endPanel.ShowLose(_resolver.LoseReason);
         }
 
+        private void OnPlayClicked()
+        {
+            if (_flow == FlowState.Ready)
+                BeginPlay();
+        }
+
         private void OnNextClicked()
         {
             // Son level'dan sonra başa dönüyoruz
@@ -153,7 +191,7 @@ namespace BusJam.Flow
             ReloadScene();
         }
 
-        
+        // Sahneyi baştan yüklemek en temiz sıfırlama yaptığım yer önceki level'dan hiçbir şey kalmıyor
         private void ReloadScene()
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
