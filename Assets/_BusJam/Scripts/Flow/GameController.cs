@@ -48,6 +48,9 @@ namespace BusJam.Flow
             startPanel.PlayClicked += OnPlayClicked;
             endPanel.NextClicked += OnNextClicked;
             endPanel.RetryClicked += OnRetryClicked;
+            startPanel.EditorClicked += OnEditorClicked;
+            hud.EditorClicked += OnEditorClicked;
+            hud.SetEditorButtonVisible(GameSession.ReturnToEditor);
         }
 
         private void OnDestroy()
@@ -55,6 +58,8 @@ namespace BusJam.Flow
             startPanel.PlayClicked -= OnPlayClicked;
             endPanel.NextClicked -= OnNextClicked;
             endPanel.RetryClicked -= OnRetryClicked;
+            startPanel.EditorClicked -= OnEditorClicked;
+            hud.EditorClicked -= OnEditorClicked;
         }
 
         private void Start()
@@ -92,8 +97,9 @@ namespace BusJam.Flow
             hud.SetLevel(level.displayName);
             hud.SetTime(_timer.Remaining);
 
-            // Oyuncu eğer ki bu levelı yarıda bırakıp çıkarsa bir dahaki sefere buradan devam etsin
-            GameSession.SaveProgress(GameSession.LevelIndex);
+            // Editörden test ediliyorsa oyuncunun kaydına dokunmuyoruz
+            if (!GameSession.ReturnToEditor)
+                GameSession.SaveProgress(GameSession.LevelIndex);
 
             if (GameSession.StartScreenShown)
             {
@@ -151,12 +157,10 @@ namespace BusJam.Flow
             _timer.Stop();
             _flow = FlowState.Ending;
 
-            // Kazanınca hemen sonraki levelı kaydediyoruz
-            // Oyuncu paneldeyken oyunu kapatsa bile bir dahaki sefere yeni leveldan başlasın
-            if (_resolver.State == GameState.Won)
+            if (_resolver.State == GameState.Won && !GameSession.ReturnToEditor)
                 GameSession.SaveProgress((GameSession.LevelIndex + 1) % LevelCatalog.Count);
 
-           
+
             _endPanelCountdown = _resolver.LoseReason == LoseReason.TimeUp ? 0.3f : endPanelDelay;
         }
 
@@ -189,6 +193,11 @@ namespace BusJam.Flow
         private void OnRetryClicked()
         {
             ReloadScene();
+        }
+
+        private void OnEditorClicked()
+        {
+            SceneManager.LoadScene(SceneNames.LevelEditor);
         }
 
         // Sahneyi baştan yüklemek en temiz sıfırlama yaptığım yer önceki level'dan hiçbir şey kalmıyor

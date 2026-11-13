@@ -119,7 +119,7 @@ namespace BusJam.Flow
 
             saveButton.onClick.AddListener(() => TrySave());
             testButton.onClick.AddListener(TestLevel);
-            playButton.onClick.AddListener(() => SceneManager.LoadScene(SceneNames.Game));
+            playButton.onClick.AddListener(PlayGame);
         }
 
         private void CreatePalette()
@@ -279,6 +279,15 @@ namespace BusJam.Flow
             GameSession.LevelIndex = _levelIndex;
             GameSession.StartScreenShown = true;
             GameSession.ReturnToEditor = true;
+            SceneManager.LoadScene(SceneNames.Game);
+        }
+
+        // Normal oyuna dönüyoruz, oyuncunun kayıtlı levelından ve Start ekranıyla
+        private void PlayGame()
+        {
+            GameSession.ReturnToEditor = false;
+            GameSession.StartScreenShown = false;
+            GameSession.ReloadFromSave();
             SceneManager.LoadScene(SceneNames.Game);
         }
 

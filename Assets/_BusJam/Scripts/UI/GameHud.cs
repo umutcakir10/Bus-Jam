@@ -1,5 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
+using System;
+using UnityEngine.UI;
 
 namespace BusJam.UI
 {
@@ -11,12 +13,22 @@ namespace BusJam.UI
         [SerializeField] private float warningSeconds = 10f;
         [SerializeField] private Color normalColor = new Color32(0x22, 0x26, 0x2B, 0xFF);
         [SerializeField] private Color warningColor = new Color32(0xE7, 0x1B, 0x31, 0xFF);
+        [SerializeField] private Button editorButton;
+
+        public event Action EditorClicked;
 
         // Süreyi her kare string'e çevirmek çöp üretir, onun yerine karakterleri bu diziye kendimiz yazıyoruz
 
         private readonly char[] _timeChars = new char[5];
         private int _shownSeconds = -1;
 
+        private void Awake()
+        {
+            editorButton.onClick.AddListener(() => EditorClicked?.Invoke());
+        }
+
+        // Level Editor'dan test için gelindiyse görünüyor, normal oyunda gizli
+        public void SetEditorButtonVisible(bool visible) => editorButton.gameObject.SetActive(visible);
         public void SetLevel(string title)
         {
             levelText.text = title;

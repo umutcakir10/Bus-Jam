@@ -11,12 +11,16 @@ namespace BusJam.UI
     {
         [SerializeField] private TMP_Text levelText;
         [SerializeField] private Button playButton;
+        [SerializeField] private Button editorButton;
+
+        public event Action EditorClicked;
 
         public event Action PlayClicked;
 
         private void Awake()
         {
             playButton.onClick.AddListener(() => PlayClicked?.Invoke());
+            editorButton.onClick.AddListener(() => EditorClicked?.Invoke());
         }
 
         public void Show(string levelTitle)

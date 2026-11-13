@@ -25,7 +25,8 @@ namespace BusJam.Flow
             _loaded = true;
             LevelIndex = IndexOf(SaveSystem.Load().currentLevelId);
         }
-
+        // Editörden normal oyuna dönerken oyuncunun kayıtlı level'ına geri dönüyoruz
+        public static void ReloadFromSave() => _loaded = false;
         public static void SaveProgress(int levelIndex)
         {
             SaveSystem.Save(new SaveData { currentLevelId = LevelCatalog.Ids[levelIndex] });
