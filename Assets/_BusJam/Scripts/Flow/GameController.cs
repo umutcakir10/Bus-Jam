@@ -9,13 +9,14 @@ using UnityEngine.SceneManagement;
 
 namespace BusJam.Flow
 {
-    
+    // Game sahnesinin yöneticisi
+    // Levelı yükler görüntüleri kurar süreyi işletir oyun bitince kartı açar
     public sealed class GameController : MonoBehaviour
     {
-        // Readyde Start paneli açık ve  oyuncunun dokunmasını bekliyoruz
+        // Ready: Start kartı açık, oyuncunun Play'e basmasını bekliyoruz
         // Playing: oyuncu dokunabiliyor ve süre akıyor
         // Ending: oyun bitti ama son animasyonlar oynasın diye kısa bir süre bekliyoruz
-        // Ended: bitiş paneli açık, butonlara basılmasını bekliyoruz
+        // Ended: sonuç kartı açık, butonlara basılmasını bekliyoruz
         private enum FlowState { Ready, Playing, Ending, Ended }
 
         [SerializeField] private BoardLayoutSettings layoutSettings = new BoardLayoutSettings();
@@ -25,8 +26,7 @@ namespace BusJam.Flow
         [SerializeField] private BusLineView busLineView;
         [SerializeField] private TapInput tapInput;
         [SerializeField] private GameHud hud;
-        [SerializeField] private StartPanel startPanel;
-        [SerializeField] private EndPanel endPanel;
+        [SerializeField] private CardPanel cardPanel;
         [SerializeField] private float endPanelDelay = 1.5f;
 
         private MoveResolver _resolver;
@@ -36,29 +36,22 @@ namespace BusJam.Flow
         private FlowState _flow;
         private float _endPanelCountdown;
 
-        // Her dokunuşta tekrar kullanılıyor, oyun sırasında yeni liste açılmıyor
+        // Her dokunuşta tekrar kullanılıyor oyun sırasında yeni liste açılmıyor
         private readonly List<GridPos> _path = new List<GridPos>(32);
         private readonly List<MoveEvent> _events = new List<MoveEvent>(16);
 
         private void Awake()
         {
             Application.targetFrameRate = 60;
-            startPanel.Hide();
-            endPanel.Hide();
-            startPanel.PlayClicked += OnPlayClicked;
-            endPanel.NextClicked += OnNextClicked;
-            endPanel.RetryClicked += OnRetryClicked;
-            startPanel.EditorClicked += OnEditorClicked;
+            cardPanel.Hide();
+            cardPanel.ActionClicked += OnCardAction;
             hud.EditorClicked += OnEditorClicked;
             hud.SetEditorButtonVisible(GameSession.ReturnToEditor);
         }
 
         private void OnDestroy()
         {
-            startPanel.PlayClicked -= OnPlayClicked;
-            endPanel.NextClicked -= OnNextClicked;
-            endPanel.RetryClicked -= OnRetryClicked;
-            startPanel.EditorClicked -= OnEditorClicked;
+            cardPanel.ActionClicked -= OnCardAction;
             hud.EditorClicked -= OnEditorClicked;
         }
 
@@ -108,7 +101,7 @@ namespace BusJam.Flow
             else
             {
                 _flow = FlowState.Ready;
-                startPanel.Show(level.displayName);
+                cardPanel.ShowStart(level.displayName);
             }
         }
 
@@ -130,7 +123,7 @@ namespace BusJam.Flow
 
         private void BeginPlay()
         {
-            startPanel.Hide();
+            cardPanel.Hide();
             GameSession.StartScreenShown = true;
             _timer.Start();
             _flow = FlowState.Playing;
@@ -157,10 +150,12 @@ namespace BusJam.Flow
             _timer.Stop();
             _flow = FlowState.Ending;
 
+            // Kazanınca hemen sonraki levelı kaydediyoruz
+            // Oyuncu kart açıkken oyunu kapatsa bile bir dahaki sefere yeni leveldan başlar
             if (_resolver.State == GameState.Won && !GameSession.ReturnToEditor)
                 GameSession.SaveProgress((GameSession.LevelIndex + 1) % LevelCatalog.Count);
 
-
+            // Süre bittiyse oynayacak animasyon yok kart neredeyse hemen gelebilir
             _endPanelCountdown = _resolver.LoseReason == LoseReason.TimeUp ? 0.3f : endPanelDelay;
         }
 
@@ -172,27 +167,47 @@ namespace BusJam.Flow
 
             _flow = FlowState.Ended;
             if (_resolver.State == GameState.Won)
-                endPanel.ShowWin(GameSession.LevelIndex == LevelCatalog.Count - 1);
+                cardPanel.ShowWin(CountStars(), GameSession.LevelIndex == LevelCatalog.Count - 1);
             else
-                endPanel.ShowLose(_resolver.LoseReason);
+                cardPanel.ShowLose(_resolver.LoseReason);
         }
 
-        private void OnPlayClicked()
+        // Sürenin yarısından fazlası kaldıysa 3, dörtte birinden fazlası kaldıysa 2, yoksa 1 yıldız
+        private int CountStars()
         {
-            if (_flow == FlowState.Ready)
-                BeginPlay();
+            float left = _timer.Remaining / _timer.Duration;
+            if (left >= 0.5f)
+                return 3;
+            return left >= 0.25f ? 2 : 1;
         }
 
-        private void OnNextClicked()
+        private void OnCardAction(CardAction action)
         {
-            // Son level'dan sonra başa dönüyoruz
-            GameSession.LevelIndex = (GameSession.LevelIndex + 1) % LevelCatalog.Count;
-            ReloadScene();
-        }
-
-        private void OnRetryClicked()
-        {
-            ReloadScene();
+            switch (action)
+            {
+                case CardAction.Play:
+                    if (_flow == FlowState.Ready)
+                        BeginPlay();
+                    break;
+                case CardAction.Next:
+                    // Son leveldan sonra başa dönüyoruz
+                    GameSession.LevelIndex = (GameSession.LevelIndex + 1) % LevelCatalog.Count;
+                    ReloadScene();
+                    break;
+                case CardAction.Retry:
+                    ReloadScene();
+                    break;
+                case CardAction.Menu:
+                    // Ana menüye dönünce Start kartı tekrar çıkıyor ve oyuncunun kayıtlı levelı açılıyor
+                    GameSession.ReturnToEditor = false;
+                    GameSession.StartScreenShown = false;
+                    GameSession.ReloadFromSave();
+                    ReloadScene();
+                    break;
+                case CardAction.Editor:
+                    OnEditorClicked();
+                    break;
+            }
         }
 
         private void OnEditorClicked()
@@ -200,7 +215,7 @@ namespace BusJam.Flow
             SceneManager.LoadScene(SceneNames.LevelEditor);
         }
 
-        // Sahneyi baştan yüklemek en temiz sıfırlama yaptığım yer önceki level'dan hiçbir şey kalmıyor
+        // Sahneyi baştan yüklemek en temiz sıfırlama, önceki leveldan hiçbir şey kalmıyor
         private void ReloadScene()
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
