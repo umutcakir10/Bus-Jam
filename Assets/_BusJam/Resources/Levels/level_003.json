@@ -1,0 +1,15 @@
+{
+    "version": 1,
+    "id": "level_003",
+    "displayName": "Level 3",
+    "timeLimitSeconds": 60,
+    "busCapacity": 3,
+    "waitingSlotCount": 5,
+    "rows": [
+        "GRBG",
+        "RGGB",
+        "BGRG",
+        "...."
+    ],
+    "buses": "GRBG"
+}

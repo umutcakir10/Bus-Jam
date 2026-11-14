@@ -1,0 +1,15 @@
+{
+    "version": 1,
+    "id": "level_005",
+    "displayName": "Level 5",
+    "timeLimitSeconds": 75,
+    "busCapacity": 3,
+    "waitingSlotCount": 5,
+    "rows": [
+        "YRBG.",
+        "RYGBR",
+        "GRYRB",
+        "..R.."
+    ],
+    "buses": "YRBGR"
+}

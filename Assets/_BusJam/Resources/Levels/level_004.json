@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "id": "level_004",
+    "displayName": "Level 4",
+    "timeLimitSeconds": 50,
+    "busCapacity": 3,
+    "waitingSlotCount": 5,
+    "rows": [
+        "#R.B#",
+        "XRGBX",
+        "GRGB."
+    ],
+    "buses": "GRB"
+}

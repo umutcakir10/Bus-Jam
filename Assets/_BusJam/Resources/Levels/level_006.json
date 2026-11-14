@@ -1,0 +1,15 @@
+{
+    "version": 1,
+    "id": "level_006",
+    "displayName": "Level 6",
+    "timeLimitSeconds": 75,
+    "busCapacity": 3,
+    "waitingSlotCount": 4,
+    "rows": [
+        "BP.YR",
+        "PGXRY",
+        "YRGPB",
+        "G.B.."
+    ],
+    "buses": "PYGBR"
+}
