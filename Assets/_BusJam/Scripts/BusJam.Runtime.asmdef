@@ -3,7 +3,8 @@
     "rootNamespace": "BusJam",
     "references": [
         "GUID:6055be8ebefd69e48b49212b09b47b2f",
-        "GUID:2bafac87e7f4b9b418d9448d219b01ab"
+        "GUID:2bafac87e7f4b9b418d9448d219b01ab",
+        "GUID:a06137ea1e8536e49afbfe063e851878"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

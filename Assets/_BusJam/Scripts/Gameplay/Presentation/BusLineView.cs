@@ -71,6 +71,9 @@ namespace BusJam.Gameplay.Presentation
             BusView front = _buses[_front];
             if (front == null || !front.IsLeaving)
                 return;
+            // Öndeki otobüs durağı bir otobüs boyu boşaltmadan arkadaki harekete geçmesin, yoksa iç içe giriyorlar
+            if (front.gameObject.activeSelf && front.transform.position.x - _stop.x < queueSpacing)
+                return;
 
             // Öndeki otobüs gerçekten yola çıkınca sıra bir ilerliyor, arkadakiler yeni yerlerine sürüyor
             _front++;

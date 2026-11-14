@@ -1,21 +1,22 @@
 ﻿using System.Collections.Generic;
 using BusJam.Core;
+using DG.Tweening;
 using UnityEngine;
 
 namespace BusJam.Gameplay.Presentation
 {
-    // Tek bir otobüsün görüntüsü. Sıranın verdiği yere sürer yolcularını sayar
-    // Otobüs hep +X yönüne ekranda soldan sağa gider.
+    
+    // Sıranın verdiği yere sürer, yolcularını sayar, herkes oturunca yola çıkar
+    // Otobüs hep +X yönüne, ekranda soldan sağa gider
     public sealed class BusView : MonoBehaviour
     {
-        private const float ArriveDistanceSqr = 0.0001f;
-
         [SerializeField] private PassengerColor color;
         [SerializeField] private Transform[] seats;
         [SerializeField] private float driveSpeed = 10f;
         [SerializeField] private float exitDistance = 25f;
 
-        private Vector3 _target;
+        private Tween _move;
+        private Tween _punch;
         private bool _targetIsStop;
         private int _reserved;
         private int _seated;
@@ -24,46 +25,61 @@ namespace BusJam.Gameplay.Presentation
         public PassengerColor Color => color;
         public int SeatCount => seats.Length;
         public bool IsLeaving { get; private set; }
-        public bool IsAtStop => _targetIsStop && !IsLeaving && IsAtTarget;
 
-        private bool IsAtTarget => (transform.position - _target).sqrMagnitude < ArriveDistanceSqr;
+        // Durağa giden hareket bittiyse otobüs durakta bekliyor demektir
+        public bool IsAtStop => _targetIsStop && !IsLeaving && (_move == null || !_move.IsActive());
 
         public Transform GetSeat(int index) => seats[index];
 
         public void Place(Vector3 position, bool isStop)
         {
+            _move?.Kill();
             transform.position = position;
-            DriveTo(position, isStop);
-        }
-
-        public void DriveTo(Vector3 position, bool isStop)
-        {
-            _target = position;
             _targetIsStop = isStop;
         }
 
+        // Süreyi mesafeden hesaplıyoruz, uzaktaki otobüs daha uzun sürede gelsin
+        // OutCubic ile hızlı başlayıp yavaşlayarak duruyor, gerçek bir otobüs gibi
+        public void DriveTo(Vector3 position, bool isStop)
+        {
+            _move?.Kill();
+            _targetIsStop = isStop;
+            float duration = Vector3.Distance(transform.position, position) / driveSpeed * 1.6f;
+            _move = transform.DOMove(position, duration).SetEase(Ease.OutCubic).SetLink(gameObject);
+        }
+
         public void ReserveSeat() => _reserved++;
-        public void NotifySeated() => _seated++;
+
+        // Her yolcu oturunca otobüs hafifçe esniyor, binişin hissedilmesi için
+        public void NotifySeated()
+        {
+            _seated++;
+            _punch?.Complete();
+            _punch = transform.DOPunchScale(new Vector3(0.06f, -0.08f, 0.06f), 0.25f, 6, 0.5f).SetLink(gameObject);
+        }
+
         public void RequestDeparture() => _departureRequested = true;
 
         private void Update()
         {
-            // Hakem otobüsü hemen gönderir ama son yolcu hâlâ yürüyor olabilir
-            // O yüzden otobüs rezerve edilen herkes oturana kadar bekliyor
+            
+            // O yüzden otobüs, rezerve edilen herkes oturana kadar bekliyor
             if (_departureRequested && !IsLeaving && IsAtStop && _seated == _reserved)
-            {
-                IsLeaving = true;
-                _target = transform.position + Vector3.right * exitDistance;
-            }
-
-            transform.position = Vector3.MoveTowards(transform.position, _target, driveSpeed * Time.deltaTime);
-
-            // Ekrandan çıkınca yok etmiyoruz, sadece gizliyoruz oyun sırasında Destroy yok
-            if (IsLeaving && IsAtTarget)
-                gameObject.SetActive(false);
+                Leave();
         }
 
-        // Bileşen eklendiği an çalışır modeldeki SeatAnchor_0, _1, _2'yi sırayla bulup koltuklara koyar
+        // Yavaş kalkıp hızlanarak gidiyor, ekrandan çıkınca yok etmiyoruz, gizliyoruz
+        private void Leave()
+        {
+            IsLeaving = true;
+            _move?.Kill();
+            _move = transform.DOMoveX(transform.position.x + exitDistance, exitDistance / driveSpeed * 0.8f)
+                .SetEase(Ease.InQuad)
+                .SetLink(gameObject)
+                .OnComplete(() => gameObject.SetActive(false));
+        }
+
+        // Bileşen eklendiği an çalışır, modeldeki SeatAnchor_0, _1, _2'yi sırayla koltuklara koyar
         private void Reset()
         {
             var found = new List<Transform>();

@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
 using BusJam.Core;
+using DG.Tweening;
 using UnityEngine;
 
 namespace BusJam.Gameplay.Presentation
 {
-    
+    // Tek bir yolcunun görüntüsü, kural bilmez, hakem ne dediyse onu oynatır
+    // Bir yürüme planı var: sırayla gidilecek noktalar, en sonda da varsa bir otobüs koltuğu
     public sealed class PassengerView : MonoBehaviour
     {
-        // Animator'a string yerine sayı ile soruyoruz dönüşümü bir kere en başta yapıyoruz.
+        // Animator'a string yerine sayı ile soruyoruz, dönüşümü bir kere en başta yapıyoruz
         private static readonly int IsWalkingId = Animator.StringToHash("IsWalking");
         private static readonly int JumpId = Animator.StringToHash("Jump");
 
@@ -21,7 +23,12 @@ namespace BusJam.Gameplay.Presentation
         [SerializeField] private float walkSpeed = 4f;
         [SerializeField] private float turnSpeed = 720f;
 
-        // Liste bir kere oluşuyor, bitince temizleniyor her yürüyüşte yeni liste açıp çöp üretmiyoruz.
+        // Otobüsün önünde, koltuğa zıplamadan önce durduğu noktanın otobüs ortasına uzaklığı
+        [SerializeField] private float boardingOffset = 1.3f;
+        [SerializeField] private float jumpPower = 1.2f;
+        [SerializeField] private float jumpDuration = 0.4f;
+
+        // Liste bir kere oluşuyor, bitince temizleniyor, her yürüyüşte yeni liste açıp çöp üretmiyoruz
         private readonly List<Vector3> _points = new List<Vector3>(16);
         private int _nextPoint;
         private BusView _bus;
@@ -29,6 +36,7 @@ namespace BusJam.Gameplay.Presentation
 
         private Vector3 _restFacing = Vector3.forward;
         private bool _isWalking;
+        private bool _jumping;
         private float _shakeTimeLeft;
 
         public PassengerColor Color => color;
@@ -43,7 +51,7 @@ namespace BusJam.Gameplay.Presentation
 
         public void SetRestFacing(Vector3 facing) => _restFacing = facing;
 
-        // Elindeki plan bitince bu koltuğa yürüyüp oturacak.
+        // Elindeki plan bitince bu koltuğa gidip oturacak
         public void BoardBus(BusView bus, int seat)
         {
             _bus = bus;
@@ -55,12 +63,14 @@ namespace BusJam.Gameplay.Presentation
 
         public void PlayJump() => animator.SetTrigger(JumpId);
 
-        // Havuza geri dönerken her şeyi sıfırlıyoruz ki bir sonraki kullanımda temiz başlasın.
+        // Havuza geri dönerken her şeyi sıfırlıyoruz ki bir sonraki kullanımda temiz başlasın
         public void ResetForReuse()
         {
+            transform.DOKill();
             _points.Clear();
             _nextPoint = 0;
             _bus = null;
+            _jumping = false;
             _restFacing = Vector3.forward;
             _shakeTimeLeft = 0f;
             animator.transform.localPosition = Vector3.zero;
@@ -70,6 +80,10 @@ namespace BusJam.Gameplay.Presentation
 
         private void Update()
         {
+            // Zıplarken hareketi DOTween yönetiyor, araya girmiyoruz
+            if (_jumping)
+                return;
+
             if (_nextPoint < _points.Count)
                 StepTowardPoint();
             else if (_bus != null)
@@ -102,18 +116,38 @@ namespace BusJam.Gameplay.Presentation
                 return;
             }
 
+            // Koltuk otobüsün içinde ve yüksekte, oraya yürürse havada süzülüyormuş gibi görünüyor
+            // O yüzden yerde, otobüsün önünde koltuğun hizasına kadar yürüyüp oradan zıplıyor
             Transform seat = _bus.GetSeat(_seat);
-            if (!MoveTowards(seat.position))
+            Vector3 door = new Vector3(seat.position.x, 0f, seat.position.z - boardingOffset);
+            if (!MoveTowards(door))
                 return;
 
-            // Koltuğa oturunca otobüsün çocuğu oluyor otobüs gidince yolcu da onunla gidiyor
-            // Yüzü otobüsün gittiği yöne dönük, kameradan yandan görünüyor
-            transform.SetParent(seat, true);
-            transform.SetPositionAndRotation(seat.position, Quaternion.LookRotation(Vector3.right));
-            _restFacing = Vector3.right;
-            SetWalking(false);
-            _bus.NotifySeated();
+            JumpIntoSeat(seat);
+        }
+
+        private void JumpIntoSeat(Transform seat)
+        {
+            BusView bus = _bus;
             _bus = null;
+            _jumping = true;
+            SetWalking(false);
+            animator.SetTrigger(JumpId);
+            transform.rotation = Quaternion.LookRotation(Vector3.forward);
+
+            // Yere indiğinde koltuğun çocuğu oluyor, otobüs giderken yolcu da onunla gidiyor
+            // Otobüs yolcunun gerçekten oturduğunu ancak burada öğreniyor, ondan önce yola çıkmıyor
+            transform.DOJump(seat.position, jumpPower, 1, jumpDuration)
+                .SetEase(Ease.Linear)
+                .SetLink(gameObject)
+                .OnComplete(() =>
+                {
+                    transform.SetParent(seat, true);
+                    transform.SetPositionAndRotation(seat.position, Quaternion.LookRotation(Vector3.right));
+                    _restFacing = Vector3.right;
+                    _jumping = false;
+                    bus.NotifySeated();
+                });
         }
 
         private void Rest()
@@ -124,7 +158,7 @@ namespace BusJam.Gameplay.Presentation
                 Turn(_restFacing);
         }
 
-        // Hedefe doğru bir kare yürür vardıysa true döner.
+        // Hedefe doğru bir kare yürür, vardıysa true döner
         private bool MoveTowards(Vector3 target)
         {
             Vector3 position = transform.position;
@@ -144,7 +178,7 @@ namespace BusJam.Gameplay.Presentation
             transform.rotation = Quaternion.RotateTowards(transform.rotation, goal, turnSpeed * Time.deltaTime);
         }
 
-        // Animator'a sadece değer değişince yazıyoruz her kare aynı şeyi göndermek boşa iş demek
+        // Animator'a sadece değer değişince yazıyoruz, her kare aynı şeyi göndermek boşa iş
         private void SetWalking(bool walking)
         {
             if (_isWalking == walking)
@@ -154,7 +188,7 @@ namespace BusJam.Gameplay.Presentation
             animator.SetBool(IsWalkingId, walking);
         }
 
-        // Önü kapalı yolcu titriyor. Sadece modeli oynatıyoruz hücredeki yeri bozulmasın diye.
+        // Önü kapalı yolcu titriyor, sadece modeli oynatıyoruz, hücredeki yeri bozulmasın diye
         private void UpdateShake()
         {
             if (_shakeTimeLeft <= 0f)
@@ -166,7 +200,7 @@ namespace BusJam.Gameplay.Presentation
             animator.transform.localPosition = new Vector3(x, 0f, 0f);
         }
 
-        // Bileşen eklendiği an Unity bunu çağırır Animator alanını elle sürüklemekten kurtarıyor.
+        // Bileşen eklendiği an Unity bunu çağırır, Animator alanını elle sürüklemekten kurtarıyor
         private void Reset()
         {
             animator = GetComponentInChildren<Animator>();
