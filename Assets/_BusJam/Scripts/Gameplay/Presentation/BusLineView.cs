@@ -49,6 +49,8 @@ namespace BusJam.Gameplay.Presentation
         }
 
         public BusView GetBus(int busIndex) => _buses[busIndex];
+        // Bütün otobüsler doldu ve duraktan ayrıldı kazanma kartı bunu bekliyor
+        public bool AllDeparted => _buses == null || _front >= _buses.Length;
 
         public void Clear()
         {

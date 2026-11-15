@@ -162,12 +162,19 @@ namespace BusJam.Flow
             if (_resolver.State == GameState.Won && !GameSession.ReturnToEditor)
                 GameSession.SaveProgress((GameSession.LevelIndex + 1) % LevelCatalog.Count);
 
-            // Süre bittiyse oynayacak animasyon yok kart neredeyse hemen gelebilir
-            _endPanelCountdown = _resolver.LoseReason == LoseReason.TimeUp ? 0.3f : endPanelDelay;
+            // Kazanınca asıl bekleme son otobüsün gitmesi buradaki süre sadece kısa bir nefes
+            // Süre bittiyse kart neredeyse hemen gelebilir
+            if (_resolver.State == GameState.Won || _resolver.LoseReason == LoseReason.TimeUp)
+                _endPanelCountdown = 0.3f;
+            else
+                _endPanelCountdown = endPanelDelay;
         }
 
         private void UpdateEnding()
         {
+            // Son yolcu binip son otobüs yola çıkmadan kazanma kartını açmıyoruz
+            if (_resolver.State == GameState.Won && !busLineView.AllDeparted)
+                return;
             _endPanelCountdown -= Time.deltaTime;
             if (_endPanelCountdown > 0f)
                 return;
