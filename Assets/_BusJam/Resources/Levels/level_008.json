@@ -1,0 +1,16 @@
+{
+    "version": 1,
+    "id": "level_008",
+    "displayName": "Level 8",
+    "timeLimitSeconds": 80,
+    "busCapacity": 3,
+    "waitingSlotCount": 4,
+    "rows": [
+        ".GBYB",
+        "RRYBB",
+        "XygbX",
+        "rbggg",
+        "rg.rr"
+    ],
+    "buses": "BRRBYGG"
+}
