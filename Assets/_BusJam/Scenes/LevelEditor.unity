@@ -1554,7 +1554,7 @@ MonoBehaviour:
   pool: {fileID: 1133060193}
   gridFacing: {x: 0, y: 0, z: 1}
   hiddenMaterial: {fileID: 2100000, guid: 9515977246fdcad469f7b7dd9ff0d2e0, type: 2}
-  hiddenMarkPrefab: {fileID: 8963916990690893168, guid: b84088ffc9f8cd84aa881b91d99f2879,
+  hiddenMarkPrefab: {fileID: 8128338987125769549, guid: 4402558ed0bc10f40aa9178c612e72b4,
     type: 3}
 --- !u!4 &553006336
 Transform:
