@@ -11,6 +11,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+
 namespace BusJam.Flow
 {
     // Level Editor sahnesinin yöneticisi burasıdır
@@ -26,6 +27,7 @@ namespace BusJam.Flow
         [SerializeField] private BusLineView busLineView;
         [SerializeField] private CameraFitter cameraFitter;
         [SerializeField] private TapInput tapInput;
+        [SerializeField] private Button menuButton;
 
         // Üst ve alt paneller ekranı kapladığı için kameraya biraz daha derin bir alan gösteriyoruz
         [SerializeField] private float extraViewDepth = 8f;
@@ -120,6 +122,7 @@ namespace BusJam.Flow
             saveButton.onClick.AddListener(() => TrySave());
             testButton.onClick.AddListener(TestLevel);
             playButton.onClick.AddListener(PlayGame);
+            menuButton.onClick.AddListener(BackToMenu);
         }
 
         private void CreatePalette()
@@ -285,6 +288,17 @@ namespace BusJam.Flow
         // Normal oyuna dönüyoruz, oyuncunun kayıtlı levelından ve Start ekranıyla
         private void PlayGame()
         {
+            GameSession.ReturnToEditor = false;
+            GameSession.StartScreenShown = false;
+            GameSession.ReloadFromSave();
+            SceneManager.LoadScene(SceneNames.Game);
+
+
+        }
+
+        private void BackToMenu()
+        {
+            // Editörden kaydetmeden çıkılıyor, taslak atılıyor ve oyuncu kayıtlı level'ına dönüyor
             GameSession.ReturnToEditor = false;
             GameSession.StartScreenShown = false;
             GameSession.ReloadFromSave();
