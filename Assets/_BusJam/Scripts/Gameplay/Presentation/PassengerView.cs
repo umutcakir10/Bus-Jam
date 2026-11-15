@@ -39,8 +39,21 @@ namespace BusJam.Gameplay.Presentation
         private bool _jumping;
         private float _shakeTimeLeft;
 
+        // Gizli yolcu: rengi açılana kadar gri başında soru işareti var
+        private Renderer[] _renderers;
+        private Material[][] _originalMaterials;
+        private Material[][] _hiddenMaterials;
+        private GameObject _hiddenMark;
+        private Vector3 _baseScale;
+
+        public bool IsHidden => _hiddenMark != null;
+
         public PassengerColor Color => color;
 
+        private void Awake()
+        {
+            _baseScale = transform.localScale;
+        }
         public void Place(Vector3 position, Vector3 facing)
         {
             transform.SetPositionAndRotation(position, Quaternion.LookRotation(facing));
@@ -63,10 +76,66 @@ namespace BusJam.Gameplay.Presentation
 
         public void PlayJump() => animator.SetTrigger(JumpId);
 
+        // Editörde tasarımcı rengi görsün diye showColor açık geliyor, oyunda sadece gri görünüyor
+        public void Hide(Material hiddenMaterial, GameObject markPrefab, bool showColor)
+        {
+            CacheMaterials(hiddenMaterial);
+            if (!showColor)
+                SetMaterials(_hiddenMaterials);
+            _hiddenMark = Instantiate(markPrefab, transform);
+        }
+
+        public void Reveal()
+        {
+            if (!IsHidden)
+                return;
+
+            ClearHidden();
+            animator.SetTrigger(JumpId);
+            transform.DOPunchScale(_baseScale * 0.25f, 0.35f, 6, 0.5f).SetLink(gameObject);
+        }
+
+        // Materyal dizileri yolcu başına bir kere oluşuyor, havuzdan tekrar gelince aynıları kullanılıyor
+        private void CacheMaterials(Material hiddenMaterial)
+        {
+            if (_renderers != null)
+                return;
+
+            _renderers = animator.GetComponentsInChildren<Renderer>(true);
+            _originalMaterials = new Material[_renderers.Length][];
+            _hiddenMaterials = new Material[_renderers.Length][];
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                _originalMaterials[i] = _renderers[i].sharedMaterials;
+                var hidden = new Material[_originalMaterials[i].Length];
+                for (int m = 0; m < hidden.Length; m++)
+                    hidden[m] = hiddenMaterial;
+                _hiddenMaterials[i] = hidden;
+            }
+        }
+
+        private void ClearHidden()
+        {
+            if (_hiddenMark == null)
+                return;
+
+            Destroy(_hiddenMark);
+            _hiddenMark = null;
+            SetMaterials(_originalMaterials);
+        }
+
+        private void SetMaterials(Material[][] materials)
+        {
+            for (int i = 0; i < _renderers.Length; i++)
+                _renderers[i].sharedMaterials = materials[i];
+        }
+
         // Havuza geri dönerken her şeyi sıfırlıyoruz ki bir sonraki kullanımda temiz başlasın
         public void ResetForReuse()
         {
             transform.DOKill();
+            ClearHidden();
+            transform.localScale = _baseScale;
             _points.Clear();
             _nextPoint = 0;
             _bus = null;

@@ -42,6 +42,7 @@ namespace BusJam.Flow
         // Her dokunuşta tekrar kullanılıyor oyun sırasında yeni liste açılmıyor
         private readonly List<GridPos> _path = new List<GridPos>(32);
         private readonly List<MoveEvent> _events = new List<MoveEvent>(16);
+        private readonly List<GridPos> _revealPath = new List<GridPos>(32);
 
         private void Awake()
         {
@@ -90,6 +91,8 @@ namespace BusJam.Flow
 
             boardView.Build(_resolver.Board, _layout);
             passengerView.Build(_resolver.Board, _layout);
+            passengerView.HideCells(level, false);
+            passengerView.RevealOpened(_resolver, _revealPath);
             busLineView.Build(_resolver.Buses, _layout);
             cameraFitter.Fit(_layout.GetPlayAreaBounds());
             environment.Place(_layout);
@@ -151,6 +154,7 @@ namespace BusJam.Flow
                 if (result == TapResult.Moved)
                 {
                     _director.Play(_path, _events);
+                    passengerView.RevealOpened(_resolver, _revealPath);
                     SoundPlayer.Play(Sfx.Tap);
                 }
                 else if (result == TapResult.Blocked)

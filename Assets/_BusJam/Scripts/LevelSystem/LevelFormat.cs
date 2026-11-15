@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using BusJam.Core;
 
 namespace BusJam.LevelSystem
@@ -15,11 +15,11 @@ namespace BusJam.LevelSystem
         {
             switch (c)
             {
-                case 'R': color = PassengerColor.Red; return true;
-                case 'B': color = PassengerColor.Blue; return true;
-                case 'G': color = PassengerColor.Green; return true;
-                case 'Y': color = PassengerColor.Yellow; return true;
-                case 'P': color = PassengerColor.Purple; return true;
+                case 'R': case 'r': color = PassengerColor.Red; return true;
+                case 'B': case 'b': color = PassengerColor.Blue; return true;
+                case 'G': case 'g': color = PassengerColor.Green; return true;
+                case 'Y': case 'y': color = PassengerColor.Yellow; return true;
+                case 'P': case 'p': color = PassengerColor.Purple; return true;
                 default: color = PassengerColor.None; return false;
             }
         }
@@ -37,6 +37,11 @@ namespace BusJam.LevelSystem
                     throw new ArgumentOutOfRangeException(nameof(color), color, "Color has no level-file letter.");
             }
         }
+        // Küçük harf aynı rengin gizli yolcusu kurallar için ikisi aynı yolcu
+        // Gizli olması sadece ekranda rengini saklamak demek
+        public static bool IsHidden(char c) => char.IsLower(c) && TryParseColor(c, out _);
+
+        public static char ToHiddenChar(PassengerColor color) => char.ToLowerInvariant(ToChar(color));
 
         public static bool IsKnownCell(char c)
         {

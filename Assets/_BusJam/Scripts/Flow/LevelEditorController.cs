@@ -62,9 +62,12 @@ namespace BusJam.Flow
         private int _levelIndex;
         private char _brush = 'R';
         private bool _unsaved;
+        private PaletteButton _hiddenToggle;
+        private bool _hiddenBrush;
 
         private void Start()
         {
+            GameSession.EnsureLoaded();
             LevelCatalog.Refresh();
             CreatePalette();
             HookUpControls();
@@ -84,11 +87,12 @@ namespace BusJam.Flow
             if (!TryFindTappedCell(ray, out GridPos cell))
                 return;
 
-            // Hücre zaten bu fırçanın rengindeyse boşuna yeniden çizmiyoruz
-            if (_draft.GetCell(cell.X, cell.Y) == _brush)
+            // Hücre zaten bu fırçayla boyalıysa boşuna yeniden çizmiyoruz
+            char brush = CurrentBrush();
+            if (_draft.GetCell(cell.X, cell.Y) == brush)
                 return;
 
-            _draft.Paint(cell.X, cell.Y, _brush);
+            _draft.Paint(cell.X, cell.Y, brush);
             MarkChanged();
         }
 
@@ -135,6 +139,7 @@ namespace BusJam.Flow
             AddPaletteButton(LevelFormat.EmptyCell, new Color32(0xF2, 0xF2, 0xF2, 0xFF), "Empty");
             AddPaletteButton(LevelFormat.VoidCell, new Color32(0x3C, 0x3F, 0x44, 0xFF), "Hole");
             AddPaletteButton(LevelFormat.ObstacleCell, new Color32(0x5E, 0x64, 0x6B, 0xFF), "Wall");
+            AddHiddenToggle();
         }
 
         private void AddPaletteButton(char cell, Color color, string text)
@@ -147,6 +152,24 @@ namespace BusJam.Flow
                 RefreshPalette();
             };
             _palette.Add(button);
+        }
+        // Bu düğme bir fırça değil açıkken renkli yolcular gizli olarak boyanıyor
+        private void AddHiddenToggle()
+        {
+            _hiddenToggle = Instantiate(paletteButtonPrefab, paletteRoot);
+            _hiddenToggle.Setup('?', new Color32(0xA9, 0xA3, 0xC4, 0xFF), "?");
+            _hiddenToggle.Picked += _ =>
+            {
+                _hiddenBrush = !_hiddenBrush;
+                RefreshPalette();
+            };
+        }
+
+        private char CurrentBrush()
+        {
+            if (_hiddenBrush && LevelFormat.TryParseColor(_brush, out PassengerColor color))
+                return LevelFormat.ToHiddenChar(color);
+            return _brush;
         }
 
         private void OpenLevel(int index)
@@ -196,6 +219,7 @@ namespace BusJam.Flow
 
             boardView.Build(board, _layout);
             passengerView.Build(board, _layout);
+            passengerView.HideCells(data, true);
             busLineView.Build(buses, _layout);
 
             Bounds area = _layout.GetPlayAreaBounds();
@@ -256,6 +280,8 @@ namespace BusJam.Flow
         {
             foreach (PaletteButton button in _palette)
                 button.SetSelected(button.Cell == _brush);
+            if (_hiddenToggle != null)
+                _hiddenToggle.SetSelected(_hiddenBrush);
         }
 
         private bool TrySave()

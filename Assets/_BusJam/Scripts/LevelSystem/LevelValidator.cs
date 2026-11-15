@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BusJam.Core;
 
 namespace BusJam.LevelSystem
@@ -113,7 +113,8 @@ namespace BusJam.LevelSystem
             for (int i = 0; i < level.buses.Length; i++)
             {
                 char c = level.buses[i];
-                if (!LevelFormat.TryParseColor(c, out _))
+                // Otobüslerin gizlisi olmaz, küçük harf burada yazım hatasıdır
+                if (!LevelFormat.TryParseColor(c, out _) || LevelFormat.IsHidden(c))
                 {
                     errors.Add($"Bus {i}: unknown color '{c}'.");
                     ok = false;

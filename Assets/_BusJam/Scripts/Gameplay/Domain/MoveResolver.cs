@@ -71,6 +71,13 @@ namespace BusJam.Gameplay.Domain
             return TapResult.Moved;
         }
 
+        // Gizli yolcunun yolu açıldı mı diye görüntü tarafı soruyor, tahtada hiçbir şey değişmiyor
+        public bool HasExitPath(GridPos cell, List<GridPos> path)
+        {
+            path.Clear();
+            return Board.GetCell(cell) == CellType.Passenger && _pathfinder.TryFindExitPath(cell, path);
+        }
+
         // Süre dolunca dışarıdan çağrılıyor, oyun zaten bittiyse hiçbir şey yapmıyor
         public void TimeUp()
         {
