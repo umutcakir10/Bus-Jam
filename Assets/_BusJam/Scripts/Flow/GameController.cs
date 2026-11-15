@@ -27,6 +27,7 @@ namespace BusJam.Flow
         [SerializeField] private TapInput tapInput;
         [SerializeField] private GameHud hud;
         [SerializeField] private CardPanel cardPanel;
+        [SerializeField] private TitleScreen titleScreen;
         [SerializeField] private float endPanelDelay = 1.5f;
 
         private MoveResolver _resolver;
@@ -47,12 +48,17 @@ namespace BusJam.Flow
             cardPanel.ActionClicked += OnCardAction;
             hud.EditorClicked += OnEditorClicked;
             hud.SetEditorButtonVisible(GameSession.ReturnToEditor);
+            titleScreen.HideInstant();
+            titleScreen.PlayClicked += OnTitlePlay;
+            titleScreen.EditorClicked += OnEditorClicked;
         }
 
         private void OnDestroy()
         {
             cardPanel.ActionClicked -= OnCardAction;
             hud.EditorClicked -= OnEditorClicked;
+            titleScreen.PlayClicked -= OnTitlePlay;
+            titleScreen.EditorClicked -= OnEditorClicked;
         }
 
         private void Start()
@@ -101,7 +107,7 @@ namespace BusJam.Flow
             else
             {
                 _flow = FlowState.Ready;
-                cardPanel.ShowStart(level.displayName);
+                titleScreen.Show(level.displayName);
             }
         }
 
@@ -124,6 +130,7 @@ namespace BusJam.Flow
         private void BeginPlay()
         {
             cardPanel.Hide();
+            titleScreen.Hide();
             GameSession.StartScreenShown = true;
             _timer.Start();
             _flow = FlowState.Playing;
@@ -210,6 +217,11 @@ namespace BusJam.Flow
             }
         }
 
+        private void OnTitlePlay()
+        {
+            if (_flow == FlowState.Ready)
+                BeginPlay();
+        }
         private void OnEditorClicked()
         {
             SceneManager.LoadScene(SceneNames.LevelEditor);
