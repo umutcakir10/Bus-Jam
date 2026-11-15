@@ -17,7 +17,7 @@ Amacım sadece çalışan bir oyun değil, **temiz kurulmuş, test edilmiş ve o
 - [Testler](#-testler)
 - [Nasıl çalıştım](#-nasıl-çalıştım)
 - [Bilinen eksikler ve sonraki adımlar](#-bilinen-eksikler-ve-sonraki-adımlar)
-- [Ek kaynaklar](#-krediler)
+- [Ek kaynaklar](#-ek-kaynaklar)
 
 ---
 
@@ -80,7 +80,7 @@ Unity'nin üst menüsünde benim eklediğim bir **Bus Jam** menüsü var:
 | **En az 5 farklı level** | **9 level** var. Zorluk giderek artıyor. |
 | **Oyun sonu ekranı** | Kazanınca yıldızlı bir kart ve sonraki level'a geçiş, kaybedince sebebini gösteren bir kart (süre bitti / yer kalmadı) ve tekrar deneme |
 | **Level Editor**: yeni level ekleme, var olanı güncelleme, süreyi düzenleme | Ayrı bir `LevelEditor` sahnesi, başlık ekranından açılıyor. Build içinde de çalışıyor. |
-| Ücretsiz asset kullanımı | Kullandıklarımın hepsi [Ek kaynaklar](#-krediler) bölümünde |
+| Ücretsiz asset kullanımı | Kullandıklarımın hepsi [Ek kaynaklar](#-ek-kaynaklar) bölümünde |
 
 ---
 
