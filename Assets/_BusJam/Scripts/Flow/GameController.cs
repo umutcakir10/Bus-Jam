@@ -23,6 +23,7 @@ namespace BusJam.Flow
         [SerializeField] private BoardLayoutSettings layoutSettings = new BoardLayoutSettings();
         [SerializeField] private BoardView boardView;
         [SerializeField] private CameraFitter cameraFitter;
+        [SerializeField] private EnvironmentLayout environment;
         [SerializeField] private PassengerBoardView passengerView;
         [SerializeField] private BusLineView busLineView;
         [SerializeField] private TapInput tapInput;
@@ -91,6 +92,7 @@ namespace BusJam.Flow
             passengerView.Build(_resolver.Board, _layout);
             busLineView.Build(_resolver.Buses, _layout);
             cameraFitter.Fit(_layout.GetPlayAreaBounds());
+            environment.Place(_layout);
             _director = new MoveDirector(_resolver.Board, _layout, passengerView, busLineView);
 
             _timer = new LevelTimer(level.timeLimitSeconds);
