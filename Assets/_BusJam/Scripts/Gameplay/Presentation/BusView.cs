@@ -2,6 +2,7 @@
 using BusJam.Core;
 using DG.Tweening;
 using UnityEngine;
+using BusJam.Audio;
 
 namespace BusJam.Gameplay.Presentation
 {
@@ -56,6 +57,7 @@ namespace BusJam.Gameplay.Presentation
             _seated++;
             _punch?.Complete();
             _punch = transform.DOPunchScale(new Vector3(0.06f, -0.08f, 0.06f), 0.25f, 6, 0.5f).SetLink(gameObject);
+            SoundPlayer.Play(Sfx.Seat);
         }
 
         public void RequestDeparture() => _departureRequested = true;
@@ -71,6 +73,7 @@ namespace BusJam.Gameplay.Presentation
         // Yavaş kalkıp hızlanarak gidiyor, ekrandan çıkınca yok etmiyoruz, gizliyoruz
         private void Leave()
         {
+            SoundPlayer.Play(Sfx.BusLeave);
             IsLeaving = true;
             _move?.Kill();
             _move = transform.DOMoveX(transform.position.x + exitDistance, exitDistance / driveSpeed * 0.8f)

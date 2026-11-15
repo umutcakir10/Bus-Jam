@@ -6,6 +6,7 @@ using BusJam.LevelSystem;
 using BusJam.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using BusJam.Audio;
 
 namespace BusJam.Flow
 {
@@ -46,7 +47,7 @@ namespace BusJam.Flow
             Application.targetFrameRate = 60;
             cardPanel.Hide();
             cardPanel.ActionClicked += OnCardAction;
-            hud.EditorClicked += OnEditorClicked;
+            titleScreen.EditorClicked += OnEditorButton;
             hud.SetEditorButtonVisible(GameSession.ReturnToEditor);
             titleScreen.HideInstant();
             titleScreen.PlayClicked += OnTitlePlay;
@@ -56,7 +57,7 @@ namespace BusJam.Flow
         private void OnDestroy()
         {
             cardPanel.ActionClicked -= OnCardAction;
-            hud.EditorClicked -= OnEditorClicked;
+            titleScreen.EditorClicked -= OnEditorButton;
             titleScreen.PlayClicked -= OnTitlePlay;
             titleScreen.EditorClicked -= OnEditorClicked;
         }
@@ -146,9 +147,15 @@ namespace BusJam.Flow
             {
                 TapResult result = _resolver.Tap(cell, _path, _events);
                 if (result == TapResult.Moved)
+                {
                     _director.Play(_path, _events);
+                    SoundPlayer.Play(Sfx.Tap);
+                }
                 else if (result == TapResult.Blocked)
+                {
                     _director.PlayBlocked(cell);
+                    SoundPlayer.Play(Sfx.Blocked);
+                }
             }
 
             if (_resolver.State == GameState.Playing)
@@ -181,9 +188,15 @@ namespace BusJam.Flow
 
             _flow = FlowState.Ended;
             if (_resolver.State == GameState.Won)
+            {
+                SoundPlayer.Play(Sfx.Win);
                 cardPanel.ShowWin(CountStars(), GameSession.LevelIndex == LevelCatalog.Count - 1);
+            }
             else
+            {
+                SoundPlayer.Play(Sfx.Lose);
                 cardPanel.ShowLose(_resolver.LoseReason);
+            }
         }
 
         // Sürenin yarısından fazlası kaldıysa 3, dörtte birinden fazlası kaldıysa 2, yoksa 1 yıldız
@@ -197,6 +210,7 @@ namespace BusJam.Flow
 
         private void OnCardAction(CardAction action)
         {
+            SoundPlayer.Play(Sfx.Click);
             switch (action)
             {
                 case CardAction.Play:
@@ -226,12 +240,21 @@ namespace BusJam.Flow
 
         private void OnTitlePlay()
         {
+            SoundPlayer.Play(Sfx.Click);
             if (_flow == FlowState.Ready)
                 BeginPlay();
         }
         private void OnEditorClicked()
         {
             SceneManager.LoadScene(SceneNames.LevelEditor);
+        }
+
+        
+        // Karttaki Editor butonu OnCardActionda zaten tıkladığı için oraya ses eklemedik iki kere çalmasın
+        private void OnEditorButton()
+        {
+            SoundPlayer.Play(Sfx.Click);
+            OnEditorClicked();
         }
 
         // Sahneyi baştan yüklemek en temiz sıfırlama, önceki leveldan hiçbir şey kalmıyor
