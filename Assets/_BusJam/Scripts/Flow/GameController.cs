@@ -31,6 +31,12 @@ namespace BusJam.Flow
         [SerializeField] private CardPanel cardPanel;
         [SerializeField] private TitleScreen titleScreen;
         [SerializeField] private float endPanelDelay = 1.5f;
+        [Header("Tutorial")]
+        [SerializeField] private TutorialHand tutorialHand;
+        [SerializeField] private int tutorialLevelCount = 2;
+        [SerializeField] private float hintDelay = 1.5f;
+        
+        [SerializeField] private float hintHeight = 0.6f;
 
         private MoveResolver _resolver;
         private BoardLayout _layout;
@@ -43,6 +49,9 @@ namespace BusJam.Flow
         private readonly List<GridPos> _path = new List<GridPos>(32);
         private readonly List<MoveEvent> _events = new List<MoveEvent>(16);
         private readonly List<GridPos> _revealPath = new List<GridPos>(32);
+        private Camera _camera;
+        private bool _tutorial;
+        private float _idleTime;
 
         private void Awake()
         {
@@ -98,6 +107,8 @@ namespace BusJam.Flow
             environment.Place(_layout);
             _director = new MoveDirector(_resolver.Board, _layout, passengerView, busLineView);
 
+            _camera = Camera.main;
+            _tutorial = GameSession.LevelIndex < tutorialLevelCount;
             _timer = new LevelTimer(level.timeLimitSeconds);
             hud.SetLevel(level.displayName);
             hud.SetTime(_timer.Remaining);
@@ -148,8 +159,10 @@ namespace BusJam.Flow
                 _resolver.TimeUp();
             hud.SetTime(_timer.Remaining);
 
+            bool tapped = false;
             if (_resolver.State == GameState.Playing && tapInput.TryGetTappedCell(_layout, out GridPos cell))
             {
+                tapped = true;
                 TapResult result = _resolver.Tap(cell, _path, _events);
                 if (result == TapResult.Moved)
                 {
@@ -163,6 +176,9 @@ namespace BusJam.Flow
                     SoundPlayer.Play(Sfx.Blocked);
                 }
             }
+
+            if (_tutorial)
+                UpdateTutorial(tapped);
 
             if (_resolver.State == GameState.Playing)
                 return;
@@ -202,6 +218,30 @@ namespace BusJam.Flow
             {
                 SoundPlayer.Play(Sfx.Lose);
                 cardPanel.ShowLose(_resolver.LoseReason);
+            }
+        }
+        // İlk iki levelda oyuncu bir süre dokunmazsa el doğru yolcuyu gösteriyor
+        // Hızlı oynayan oyuncu eli hiç görmüyor, takılan oyuncu her hamlede yardım alıyor
+        private void UpdateTutorial(bool tapped)
+        {
+            if (tapped || _resolver.State != GameState.Playing)
+            {
+                _idleTime = 0f;
+                tutorialHand.Hide();
+                return;
+            }
+
+            if (tutorialHand.IsShowing)
+                return;
+
+            _idleTime += Time.deltaTime;
+            if (_idleTime < hintDelay)
+                return;
+
+            if (_resolver.TryFindHint(_revealPath, out GridPos hint))
+            {
+                Vector3 world = _layout.CellToWorld(hint) + Vector3.up * hintHeight;
+                tutorialHand.ShowAt(_camera.WorldToScreenPoint(world));
             }
         }
 

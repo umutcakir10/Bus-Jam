@@ -78,6 +78,36 @@ namespace BusJam.Gameplay.Domain
             return Board.GetCell(cell) == CellType.Passenger && _pathfinder.TryFindExitPath(cell, path);
         }
 
+        // Tutorial için en iyi hamleyi buluyor
+        // Önce duraktaki otobüse binebilecek yolcu, yoksa en azından yolu açık herhangi biri
+        public bool TryFindHint(List<GridPos> path, out GridPos hint)
+        {
+            hint = default;
+            if (State != GameState.Playing)
+                return false;
+
+            bool found = false;
+            for (int i = 0; i < Board.CellCount; i++)
+            {
+                GridPos cell = Board.ToPos(i);
+                if (!HasExitPath(cell, path))
+                    continue;
+
+                if (Buses.CanBoard(Board.GetColor(cell)))
+                {
+                    hint = cell;
+                    return true;
+                }
+
+                if (!found)
+                {
+                    hint = cell;
+                    found = true;
+                }
+            }
+            return found;
+        }
+
         // Süre dolunca dışarıdan çağrılıyor, oyun zaten bittiyse hiçbir şey yapmıyor
         public void TimeUp()
         {
