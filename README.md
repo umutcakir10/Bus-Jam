@@ -6,6 +6,20 @@ Amacım sadece çalışan bir oyun değil, **temiz kurulmuş, test edilmiş ve o
 
 ---
 
+<p align="center">
+  <a href="https://github.com/umutcakir10/Bus-Jam/releases/latest"><b>⬇ Windows ve Android build'leri</b></a>
+</p>
+
+<p align="center">
+  <img src="Docs/Giris_Ekrani.png" width="200" alt="Giris ekranı">
+  <img src="Docs/Failed_Card.png" width="200" alt="Failed Card">
+  <img src="Docs/Oyun_Ekrani.png" width="200" alt="Oyun ekranı">
+  <img src="Docs/Level_Editor.png" width="200" alt="Level Editor">
+</p>
+
+
+
+
 ## İçindekiler
 
 - [Oyun](#-oyun)
@@ -45,7 +59,7 @@ Yolcular renkli bir grid üzerinde bekliyor, otobüsler de yolda sırayla geliyo
 
 | Platform | Adımlar |
 |---|---|
-| **Windows** | [Releases](TODO-releases-linki) sayfasından zip'i indir, bir klasöre çıkar, `Bus Jam.exe`'yi çalıştır. Uygulama imzasız olduğu için Windows "tanınmayan uygulama" uyarısı verebilir: **Ek bilgi → Yine de çalıştır**. |
+| **Windows** | [Releases](https://github.com/umutcakir10/Bus-Jam/releases/latest) sayfasından zip'i indir, bir klasöre çıkar, `Bus Jam.exe`'yi çalıştır. Uygulama imzasız olduğu için Windows "tanınmayan uygulama" uyarısı verebilir: **Ek bilgi → Yine de çalıştır**. |
 | **Android** | Aynı sayfadan `BusJam.apk`'yı indirip telefona yükle. Telefon izin isterse bilinmeyen kaynaklardan yüklemeye izin ver. |
 
 > Oyun telefon için tasarlandığı için Windows'ta pencere bilerek **dikey (450 × 975)** açılıyor.
@@ -54,7 +68,7 @@ Yolcular renkli bir grid üzerinde bekliyor, otobüsler de yolda sırayla geliyo
 
 1. Repoyu klonla:
    ```
-   git clone TODO-repo-linki
+   git clone https://github.com/umutcakir10/Bus-Jam.git
    ```
 2. **Unity Hub**'da **Add** ile klasörü ekle, **Unity 2022.3.19f1** ile aç.
 3. `Assets/_BusJam/Scenes/Game` sahnesini aç ve **Play**'e bas.
@@ -255,7 +269,7 @@ Testler Play'e basmadan, birkaç saniyede çalışıyor.
 
 | | |
 |---|---|
-| **3D modeller** | TODO (adı, yapımcısı, linki, lisansı) |
+| **3D modeller** | Yolcular (Cozy) ve otobüsler (Toy Open Bus): Grab3D üzerinden ücretsiz indirildi |
 | **Sesler** | [Kenney](https://kenney.nl): Interface Sounds ve Music Jingles (CC0) |
 | **Font** | [Fredoka](https://fonts.google.com/specimen/Fredoka) (SIL Open Font License) |
 | **Animasyon** | [DOTween](http://dotween.demigiant.com) (Demigiant) |
